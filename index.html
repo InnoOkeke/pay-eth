@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.4.0/dist/ethers.min.js"></script>
     <title>Metamask Wallet Integration</title>
 </head>
 <body>
@@ -34,22 +35,25 @@
 
         // Function to send an Ethereum transaction
         async function sendTransaction() {
-            const toAddress = '0xTargetAddress'; // Replace with the recipient's Ethereum address
-            const amount = '0.1'; // Replace with the amount you want to send in Ether (e.g., 0.1)
+            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207'; // Replace with the recipient's Ethereum address
+            const amount = '0.04'; // Replace with the amount you want to send in Ether (e.g., 0.1)
 
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_accounts' });
                 const fromAddress = accounts[0];
 
-                const txParams = {
-                    from: fromAddress,
+                const { ethers } = window;
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+                const tx = {
                     to: toAddress,
-                    value: window.ethers.utils.parseEther(amount),
+                    value: ethers.utils.parseEther(amount),
                 };
 
-                const txHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [txParams] });
+                const signedTx = await provider.getSigner().sendTransaction(tx);
+                await signedTx.wait();
 
-                alert(`Transaction sent! Transaction Hash: ${txHash}`);
+                alert(`Transaction sent! Transaction Hash: ${signedTx.hash}`);
             } catch (error) {
                 console.error(error);
                 alert('Failed to send the transaction.');
