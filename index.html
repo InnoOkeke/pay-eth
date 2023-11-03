@@ -9,11 +9,6 @@
     <!-- Button to connect Metamask -->
     <button id="connectMetamask">Connect Metamask</button>
 
-    <!-- Display user's Ethereum address -->
-    <div id="userAddress" style="display: none;">
-        <p>User Address: <span id="address"></span></p>
-    </div>
-
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
@@ -25,12 +20,7 @@
             if (typeof window.ethereum !== 'undefined') {
                 try {
                     // Request Metamask to connect
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                    // Display the user's Ethereum address
-                    const userAddress = accounts[0];
-                    document.getElementById('address').textContent = userAddress;
-                    document.getElementById('userAddress').style.display = 'block';
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
 
                     // Enable the transaction button
                     document.getElementById('sendTransaction').removeAttribute('disabled');
@@ -46,7 +36,34 @@
 
         // Function to send an Ethereum transaction using web3.js
         async function sendTransaction() {
-            // Your existing sendTransaction code here
+            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207'; // Target address
+            const amount = '0.001'; // 0.001 Ether
+
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const fromAddress = accounts[0];
+
+                const web3 = new Web3(window.ethereum);
+                const value = web3.utils.toWei(amount, 'ether');
+
+                const transactionObject = {
+                    from: fromAddress,
+                    to: toAddress,
+                    value: value,
+                };
+
+                web3.eth.sendTransaction(transactionObject, (error, hash) => {
+                    if (!error) {
+                        alert(`Transaction sent! Transaction Hash: ${hash}`);
+                    } else {
+                        console.error(error);
+                        alert('Failed to send the transaction.');
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                alert('Failed to send the transaction.');
+            }
         }
 
         // Add event listeners
