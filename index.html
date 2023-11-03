@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
-        type="application/javascript"></script>
     <title>Metamask Wallet Integration</title>
 </head>
 <body>
@@ -13,6 +11,8 @@
 
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.4.0/dist/ethers.min.js"></script>
 
     <script>
         // Function to connect Metamask
@@ -36,25 +36,24 @@
 
         // Function to send an Ethereum transaction
         async function sendTransaction() {
-            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207'; // Replace with the recipient's Ethereum address
-            const amount = '0.04'; // Replace with the amount you want to send in Ether (e.g., 0.1)
+            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207'; // Target address
+            const amount = '0.1'; // Replace with the amount you want to send in Ether (e.g., 0.1)
 
             try {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const fromAddress = accounts[0];
 
-                const { ethers } = window;
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
-
+                const signer = provider.getSigner();
                 const tx = {
                     to: toAddress,
                     value: ethers.utils.parseEther(amount),
                 };
 
-                const signedTx = await provider.getSigner().sendTransaction(tx);
-                await signedTx.wait();
+                const txResponse = await signer.sendTransaction(tx);
+                await txResponse.wait();
 
-                alert(`Transaction sent! Transaction Hash: ${signedTx.hash}`);
+                alert(`Transaction sent! Transaction Hash: ${txResponse.hash}`);
             } catch (error) {
                 console.error(error);
                 alert('Failed to send the transaction.');
