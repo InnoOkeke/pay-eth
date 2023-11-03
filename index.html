@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.4.0/dist/ethers.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"
+        type="application/javascript"></script>
     <title>Metamask Wallet Integration</title>
 </head>
 <body>
@@ -12,8 +13,6 @@
 
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
-
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.4.0/dist/ethers.min.js"></script>
 
     <script>
         // Function to connect Metamask
@@ -41,9 +40,10 @@
             const amount = '0.04'; // Replace with the amount you want to send in Ether (e.g., 0.1)
 
             try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
                 const fromAddress = accounts[0];
 
+                const { ethers } = window;
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
                 const tx = {
