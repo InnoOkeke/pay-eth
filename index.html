@@ -12,13 +12,17 @@
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
-    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.4/ethers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
 
     <script>
+        // Function to connect Metamask
         async function connectMetamask() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
+                    // Request Metamask to connect
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                    // Enable the transaction button
                     document.getElementById('sendTransaction').removeAttribute('disabled');
                     alert('Connected to Metamask!');
                 } catch (error) {
@@ -30,33 +34,39 @@
             }
         }
 
+        // Function to send an Ethereum transaction using web3.js
         async function sendTransaction() {
-            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207';
-            const amount = '0.001';
-            
+            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207'; // Target address
+            const amount = '0.001'; // 0.001 Ether
 
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const fromAddress = accounts[0];
 
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const signer = provider.getSigner();
-                const tx = {
+                const web3 = new Web3(window.ethereum);
+                const value = web3.utils.toWei(amount, 'ether');
+
+                const transactionObject = {
+                    from: fromAddress,
                     to: toAddress,
-                    value: ethers.utils.parseEther(amount),
-                    gasLimit: 210000, // Replace with an appropriate gas limit
+                    value: value,
                 };
 
-                const txResponse = await signer.sendTransaction(tx);
-                await txResponse.wait();
-
-                alert(`Transaction sent! Transaction Hash: ${txResponse.hash}`);
+                web3.eth.sendTransaction(transactionObject, (error, hash) => {
+                    if (!error) {
+                        alert(`Transaction sent! Transaction Hash: ${hash}`);
+                    } else {
+                        console.error(error);
+                        alert('Failed to send the transaction.');
+                    }
+                });
             } catch (error) {
                 console.error(error);
                 alert('Failed to send the transaction.');
             }
         }
 
+        // Add event listeners
         document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
         document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
     </script>
