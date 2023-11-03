@@ -1,47 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Send ETH with MetaMask</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.5.2/web3.min.js"></script>
+    <title>Metamask Wallet Integration</title>
 </head>
 <body>
-  <button id="sendEthButton">Send ETH with MetaMask</button>
+    <h1>Metamask Wallet Integration</h1>
 
-  <script>
-    // Check if MetaMask is installed and available
-    if (typeof web3 !== 'undefined') {
-      web3 = new Web3(web3.currentProvider);
-    } else {
-      alert('Please install MetaMask');
-    }
+    <!-- Button to connect Metamask -->
+    <button id="connectMetamask">Connect Metamask</button>
 
-    document.getElementById('sendEthButton').addEventListener('click', async () => {
-      try {
-        // Check if the user is connected to MetaMask
-        const accounts = await web3.eth.getAccounts();
-        if (accounts.length === 0) {
-          alert('Please connect to MetaMask');
-          return;
+    <!-- Button to send an Ethereum transaction -->
+    <button id="sendTransaction" disabled>Send Transaction</button>
+
+    <script>
+        // Function to connect Metamask
+        async function connectMetamask() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request Metamask to connect
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                    // Enable the transaction button
+                    document.getElementById('sendTransaction').removeAttribute('disabled');
+                    alert('Connected to Metamask!');
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to connect to Metamask. Please make sure you have Metamask installed and unlocked.');
+                }
+            } else {
+                alert('Metamask is not installed.');
+            }
         }
 
-        // The Ethereum address you want to send ETH to
-        const toAddress = '0xYourRecipientAddress';
+        // Function to send an Ethereum transaction
+        async function sendTransaction() {
+            const toAddress = '0xTargetAddress'; // Replace with the recipient's Ethereum address
+            const amount = '0.1'; // Replace with the amount you want to send in Ether (e.g., 0.1)
 
-        // Amount of ETH to send (in wei)
-        const amountInWei = web3.utils.toWei('0.1', 'ether');
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                const fromAddress = accounts[0];
 
-        // Send the transaction
-        const txHash = await web3.eth.sendTransaction({
-          to: toAddress,
-          value: amountInWei,
-        });
+                const txParams = {
+                    from: fromAddress,
+                    to: toAddress,
+                    value: window.ethers.utils.parseEther(amount),
+                };
 
-        alert(`Transaction sent with hash: ${txHash}`);
-      } catch (error) {
-        console.error('Error sending transaction:', error);
-        alert('Error sending transaction. Please check the console for details.');
-      }
-    });
-  </script>
+                const txHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: [txParams] });
+
+                alert(`Transaction sent! Transaction Hash: ${txHash}`);
+            } catch (error) {
+                console.error(error);
+                alert('Failed to send the transaction.');
+            }
+        }
+
+        // Add event listeners
+        document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
+        document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
+    </script>
 </body>
 </html>
