@@ -1,3 +1,6 @@
+I understand your requirement to embed the code directly within an HTML file. In this case, if you want to keep the code entirely within a single HTML file, here's an alternative approach using an inline `<script>` tag. This approach should work for your requirements:
+
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,17 +15,11 @@
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.4/ethers.umd.min.js"></script> <!-- Include ethers.js version 6 via the CDN -->
-
     <script>
-        // Function to connect Metamask
         async function connectMetamask() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    // Request Metamask to connect
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                    // Enable the transaction button
                     document.getElementById('sendTransaction').removeAttribute('disabled');
                     alert('Connected to Metamask!');
                 } catch (error) {
@@ -34,10 +31,9 @@
             }
         }
 
-        // Function to send an Ethereum transaction
         async function sendTransaction() {
-            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207'; // Target address
-            const amount = '0.001'; // 0.001 Ether
+            const toAddress = '0xC9090A35967452D49ba7C0631E6B8E8336175207';
+            const amount = '0.001';
 
             try {
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -60,9 +56,11 @@
             }
         }
 
-        // Add event listeners
         document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
         document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
     </script>
 </body>
 </html>
+```
+
+This code embeds everything within a single HTML file while retaining the same functionality. Please make sure you have a stable internet connection and that Metamask is installed and configured correctly in your browser.
