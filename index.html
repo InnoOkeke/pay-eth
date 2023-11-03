@@ -12,9 +12,9 @@
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.4/ethers.min.js"></script>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.4/ethers.min.js"></script>
 
-    <script type="module">
+    <script>
         async function connectMetamask() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
