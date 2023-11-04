@@ -58,70 +58,52 @@
 
         // Function to connect using WalletConnect
         async function connectWalletConnect() {
-            try {
-                // Initialize WalletConnect provider
-                const walletConnectProvider = new WalletConnectProvider({
-                    infuraId: 'https://mainnet.infura.io/v3/116174764d354240a64cecda70ce8399', // Replace with your Infura project ID
-                });
+            if (isMobile()) {
+                try {
+                    // Initialize WalletConnect provider
+                    const walletConnectProvider = new WalletConnectProvider({
+                        infuraId: 'YOUR_INFURA_PROJECT_ID', // Replace with your Infura project ID
+                    });
 
-                // Enable WalletConnect
-                await walletConnectProvider.enable();
+                    // Enable WalletConnect
+                    await walletConnectProvider.enable();
 
-                // Initialize web3 with the WalletConnect provider
-                web3 = new Web3(walletConnectProvider);
+                    // Initialize web3 with the WalletConnect provider
+                    web3 = new Web3(walletConnectProvider);
 
-                // Retrieve user's accounts
-                accounts = await web3.eth.getAccounts();
+                    // Retrieve user's accounts
+                    accounts = await web3.eth.getAccounts();
 
-                // Display the user's Ethereum address
-                const userAddress = accounts[0];
-                document.getElementById('address').textContent = userAddress;
-                document.getElementById('userAddress').style.display = 'block';
+                    // Display the user's Ethereum address
+                    const userAddress = accounts[0];
+                    document.getElementById('address').textContent = userAddress;
+                    document.getElementById('userAddress').style.display = 'block';
 
-                // Hide the "Connect WalletConnect" button
-                document.getElementById('connectWalletConnect').style.display = 'none';
-                document.getElementById('connectMetamask').style.display = 'none';
+                    // Hide the "Connect WalletConnect" button
+                    document.getElementById('connectWalletConnect').style.display = 'none';
+                    document.getElementById('connectMetamask').style.display = 'none';
 
-                // Enable the transaction button
-                document.getElementById('sendTransaction').removeAttribute('disabled');
-                alert('Connected using WalletConnect!');
-            } catch (error) {
-                console.error(error);
-                alert('Failed to connect using WalletConnect. Please make sure you have a compatible mobile wallet.');
+                    // Enable the transaction button
+                    document.getElementById('sendTransaction').removeAttribute('disabled');
+                    alert('Connected using WalletConnect!');
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to connect using WalletConnect. Please make sure you have a compatible mobile wallet.');
+                }
+            } else {
+                alert('WalletConnect is supported on mobile devices. Please use a mobile device to connect using WalletConnect.');
             }
         }
 
         // Function to send an Ethereum transaction using web3.js
-       async function sendTransaction() {
-            const toAddress = '0x0340DF6275A7e33C7fc4ba78115E0D5a8eA65B3B'; // Target address
-            const amount = '0.04'; // 0.04 Ether
+        async function sendTransaction() {
+            // Your existing sendTransaction code here
+        }
 
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const fromAddress = accounts[0];
-
-                const web3 = new Web3(window.ethereum);
-                const value = web3.utils.toWei(amount, 'ether');
-
-                const transactionObject = {
-                    from: fromAddress,
-                    to: toAddress,
-                    value: value,
-                };
-
-                web3.eth.sendTransaction(transactionObject, (error, hash) => {
-                    if (!error) {
-                        alert(`Transaction sent! Transaction Hash: ${hash}`);
-                    } else {
-                        console.error(error);
-                        alert('Failed to send the transaction.');
-                    }
-                });
-            } catch (error) {
-                console.error(error);
-                alert('Failed to send the transaction.');
-            }
-       }
+        // Check if the user is on a mobile device
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
 
         // Add event listeners
         document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
