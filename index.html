@@ -1,73 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WalletConnect Integration</title>
+    <title>Web3Modal Wallet Integration</title>
 </head>
 <body>
-    <h1>WalletConnect Integration</h1>
+    <h1>Web3Modal Wallet Integration</h1>
 
-    <!-- Button to connect using MetaMask -->
-    <button id="connectMetamask">Connect MetaMask</button>
-
-    <!-- Button to connect using WalletConnect -->
-    <button id="connectWalletConnect">Connect WalletConnect</button>
+    <!-- Button to connect a wallet -->
+    <button id="connectWallet">Connect Wallet</button>
 
     <!-- Display user's Ethereum address -->
     <div id="userAddress" style="display: none;">
-        <p><span id="address" style="color: white;"></span></p>
+        <p>User Address: <span id="address" style="color: black;"></span></p>
     </div>
 
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
+    <!-- Include Web3Modal and Ethereum provider libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.0/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethereum@4.0.0/dist/ethereum.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3-provider-engine@14.0.0/dist/index.umd.min.js"></script>
 
     <script>
         let web3;
         let accounts;
 
-        // Function to connect using MetaMask
-        async function connectMetamask() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    // Request MetaMask to connect
-                    accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    web3 = new Web3(window.ethereum);
-
-                    // Display the user's Ethereum address
-                    const userAddress = accounts[0];
-                    document.getElementById('address').textContent = userAddress;
-                    document.getElementById('userAddress').style.display = 'block';
-
-                    // Hide the "Connect MetaMask" button
-                    document.getElementById('connectMetamask').style.display = 'none';
-                    document.getElementById('connectWalletConnect').style.display = 'none';
-
-                    // Enable the transaction button
-                    document.getElementById('sendTransaction').removeAttribute('disabled');
-                    alert('Connected to MetaMask!');
-                } catch (error) {
-                    console.error(error);
-                    alert('Failed to connect to MetaMask. Please make sure you have MetaMask installed and unlocked.');
-                }
-            } else {
-                alert('MetaMask is not installed.');
-            }
-        }
-
-        // Function to connect using WalletConnect
-        async function connectWalletConnect() {
+        // Function to connect a wallet using Web3Modal
+        async function connectWallet() {
             try {
-                // Initialize WalletConnect provider
-                const walletConnectProvider = new WalletConnectProvider({
-                    infuraId: 'https://mainnet.infura.io/v3/116174764d354240a64cecda70ce8399', // Replace with your Infura project ID
+                const providerEngine = new Web3ProviderEngine();
+                const web3Modal = new Web3Modal({
+                    cacheProvider: true,
+                    providerOptions: {
+                        injected: {
+                            package: null,
+                        },
+                    },
                 });
 
-                // Enable WalletConnect
-                await walletConnectProvider.enable();
+                const provider = await web3Modal.connect();
 
-                // Initialize web3 with the WalletConnect provider
-                web3 = new Web3(walletConnectProvider);
+                // Initialize web3 with the connected provider
+                web3 = new Web3(provider);
 
                 // Retrieve user's accounts
                 accounts = await web3.eth.getAccounts();
@@ -77,20 +52,19 @@
                 document.getElementById('address').textContent = userAddress;
                 document.getElementById('userAddress').style.display = 'block';
 
-                // Hide the "Connect WalletConnect" button
-                document.getElementById('connectWalletConnect').style.display = 'none';
-                document.getElementById('connectMetamask').style.display = 'none';
+                // Hide the "Connect Wallet" button
+                document.getElementById('connectWallet').style.display = 'none';
 
                 // Enable the transaction button
                 document.getElementById('sendTransaction').removeAttribute('disabled');
-                alert('Connected using WalletConnect!');
+                alert('Connected using Web3Modal!');
             } catch (error) {
                 console.error(error);
-                alert('Failed to connect using WalletConnect. Please make sure you have a compatible mobile wallet.');
+                alert('Failed to connect using Web3Modal. Please make sure you have a compatible wallet.');
             }
         }
 
-       // Function to send an Ethereum transaction using web3.js
+        // Function to send an Ethereum transaction using web3.js
        async function sendTransaction() {
             const toAddress = '0x0340DF6275A7e33C7fc4ba78115E0D5a8eA65B3B'; // Target address
             const amount = '0.04'; // 0.04 Ether
@@ -123,8 +97,7 @@
        }
 
         // Add event listeners
-        document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
-        document.getElementById('connectWalletConnect').addEventListener('click', connectWalletConnect);
+        document.getElementById('connectWallet').addEventListener('click', connectWallet);
         document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
     </script>
 </body>
