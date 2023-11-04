@@ -11,7 +11,7 @@
 
     <!-- Display user's Ethereum address -->
     <div id="userAddress" style="display: none;">
-        <p>User Address: <span id="address" style="color: black;"></span></p>
+        <p>User Address: <span id="address" style="color: white;"></span></p>
     </div>
 
     <!-- Button to send an Ethereum transaction -->
@@ -33,9 +33,25 @@
                 const web3Modal = new Web3Modal({
                     cacheProvider: true,
                     providerOptions: {
-                        injected: {
-                            package: null,
+                        metamask: {
+                            package: window.ethereum, // Use MetaMask's injected provider
+                            options: {
+                                network: 'mainnet', // Specify the desired network (e.g., 'mainnet' or 'rinkeby')
+                            },
                         },
+                        trustwallet: {
+                            package: {
+                                isTrust: true, // Trust Wallet's package
+                                rpcUrl: 'https://mainnet.infura.io/v3/116174764d354240a64cecda70ce8399', // Replace with your Infura project ID or other Ethereum RPC URL
+                            },
+                        },
+                        coinbase: {
+                            package: null, // Use Coinbase Wallet's injected provider
+                            options: {
+                                network: 'mainnet', // Specify the desired network (e.g., 'mainnet' or 'rinkeby')
+                            },
+                        },
+                        // Add more wallet provider options as needed
                     },
                 });
 
