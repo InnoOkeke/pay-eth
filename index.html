@@ -14,14 +14,14 @@
 
     <!-- Display user's Ethereum address -->
     <div id="userAddress" style="display: none;">
-        <p>User Address: <span id="address" style="color: white;"></span></p>
+        <p><span id="address" style="color: white;"></span></p>
     </div>
 
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
-    <script type="module">import { WalletConnectModal } from 'https://unpkg.com/@walletconnect/modal'</script> <!-- Include WalletConnect via the CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/client@1.4.6/dist/index.umd.min.js"></script> <!-- Include WalletConnect via the CDN -->
 
     <script>
         let web3;
@@ -58,40 +58,51 @@
 
         // Function to connect using WalletConnect
         async function connectWalletConnect() {
-            if (isMobile()) {
-                try {
-                    // Initialize WalletConnect provider
-                    const walletConnectProvider = new WalletConnectProvider({
-                        infuraId: 'https://mainnet.infura.io/v3/116174764d354240a64cecda70ce8399', // Replace with your Infura project ID
-                    });
+            const bridge = 'https://bridge.walletconnect.org'; // Use the official WalletConnect bridge
+            const client = new WalletConnect({ bridge });
 
-                    // Enable WalletConnect
-                    await walletConnectProvider.enable();
+            // Check if already connected
+            if (client.connected) {
+                alert('You are already connected with WalletConnect.');
+                return;
+            }
 
-                    // Initialize web3 with the WalletConnect provider
-                    web3 = new Web3(walletConnectProvider);
+            try {
+                // Create a new session
+                await client.createSession();
 
-                    // Retrieve user's accounts
-                    accounts = await web3.eth.getAccounts();
+                // Display a QR code for the user to scan with their mobile wallet
+                const uri = client.uri;
+                const qrCode = client.getUriWithQRCode(uri);
+                alert('Scan the QR code with your mobile wallet to connect.');
+                window.open(qrCode, '_blank');
 
-                    // Display the user's Ethereum address
-                    const userAddress = accounts[0];
-                    document.getElementById('address').textContent = userAddress;
-                    document.getElementById('userAddress').style.display = 'block';
+                // Listen for the session update event
+                client.on('session_update', (error, payload) => {
+                    if (payload.params[0].approved) {
+                        // WalletConnect session approved
+                        web3 = new Web3(client);
 
-                    // Hide the "Connect WalletConnect" button
-                    document.getElementById('connectWalletConnect').style.display = 'none';
-                    document.getElementById('connectMetamask').style.display = 'none';
+                        // Retrieve user's accounts
+                        web3.eth.getAccounts().then((result) => {
+                            accounts = result;
+                            const userAddress = accounts[0];
+                            document.getElementById('address').textContent = userAddress;
+                            document.getElementById('userAddress').style.display = 'block';
 
-                    // Enable the transaction button
-                    document.getElementById('sendTransaction').removeAttribute('disabled');
-                    alert('Connected using WalletConnect!');
-                } catch (error) {
-                    console.error(error);
-                    alert('Failed to connect using WalletConnect. Please make sure you have a compatible mobile wallet.');
-                }
-            } else {
-                alert('WalletConnect is supported on mobile devices. Please use a mobile device to connect using WalletConnect.');
+                            // Hide the "Connect WalletConnect" button
+                            document.getElementById('connectWalletConnect').style.display = 'none';
+                            document.getElementById('connectMetamask').style.display = 'none';
+
+                            // Enable the transaction button
+                            document.getElementById('sendTransaction').removeAttribute('disabled');
+                            alert('Connected using WalletConnect!');
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                alert('Failed to connect using WalletConnect. Please make sure you have a compatible mobile wallet.');
             }
         }
 
@@ -126,11 +137,6 @@
                 alert('Failed to send the transaction.');
             }
        }
-
-        // Check if the user is on a mobile device
-        function isMobile() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
 
         // Add event listeners
         document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
