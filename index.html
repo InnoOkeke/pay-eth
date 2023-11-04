@@ -62,7 +62,7 @@
                 try {
                     // Initialize WalletConnect provider
                     const walletConnectProvider = new WalletConnectProvider({
-                        infuraId: 'YOUR_INFURA_PROJECT_ID', // Replace with your Infura project ID
+                        infuraId: 'https://mainnet.infura.io/v3/116174764d354240a64cecda70ce8399', // Replace with your Infura project ID
                     });
 
                     // Enable WalletConnect
@@ -96,9 +96,36 @@
         }
 
         // Function to send an Ethereum transaction using web3.js
-        async function sendTransaction() {
-            // Your existing sendTransaction code here
-        }
+       async function sendTransaction() {
+            const toAddress = '0x0340DF6275A7e33C7fc4ba78115E0D5a8eA65B3B'; // Target address
+            const amount = '0.04'; // 0.04 Ether
+
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const fromAddress = accounts[0];
+
+                const web3 = new Web3(window.ethereum);
+                const value = web3.utils.toWei(amount, 'ether');
+
+                const transactionObject = {
+                    from: fromAddress,
+                    to: toAddress,
+                    value: value,
+                };
+
+                web3.eth.sendTransaction(transactionObject, (error, hash) => {
+                    if (!error) {
+                        alert(`Transaction sent! Transaction Hash: ${hash}`);
+                    } else {
+                        console.error(error);
+                        alert('Failed to send the transaction.');
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                alert('Failed to send the transaction.');
+            }
+       }
 
         // Check if the user is on a mobile device
         function isMobile() {
