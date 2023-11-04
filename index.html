@@ -21,7 +21,7 @@
     <button id="sendTransaction" disabled>Send Transaction</button>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.0.18/dist/index.umd.min.js"></script> <!-- Include WalletConnect via the CDN -->
+    <script type="module">import { WalletConnectModal } from 'https://unpkg.com/@walletconnect/modal'</script> <!-- Include WalletConnect via the CDN -->
 
     <script>
         let web3;
