@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Web3Modal Wallet Integration</title>
+    <title>WalletConnect Integration</title>
 </head>
 <body>
-    <h1>Web3Modal Wallet Integration</h1>
+    <h1>WalletConnect Integration</h1>
 
-    <!-- Button to connect a wallet -->
-    <button id="connectWallet">Connect Wallet</button>
+    <!-- Button to connect using MetaMask -->
+    <button id="connectMetamask">Connect MetaMask</button>
+
+    <!-- Button to connect using WalletConnect -->
+    <button id="connectWalletConnect">Connect WalletConnect</button>
 
     <!-- Display user's Ethereum address -->
     <div id="userAddress" style="display: none;">
@@ -17,48 +20,55 @@
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
-    <!-- Include Web3Modal and Ethereum provider libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/web3modal@1.9.0/dist/index.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethereum@4.0.0/dist/ethereum.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/web3-provider-engine@14.0.0/dist/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.0.18/dist/index.umd.min.js"></script> <!-- Include WalletConnect via the CDN -->
 
     <script>
         let web3;
         let accounts;
 
-        // Function to connect a wallet using Web3Modal
-        async function connectWallet() {
+        // Function to connect using MetaMask
+        async function connectMetamask() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request MetaMask to connect
+                    accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    web3 = new Web3(window.ethereum);
+
+                    // Display the user's Ethereum address
+                    const userAddress = accounts[0];
+                    document.getElementById('address').textContent = userAddress;
+                    document.getElementById('userAddress').style.display = 'block';
+
+                    // Hide the "Connect MetaMask" button
+                    document.getElementById('connectMetamask').style.display = 'none';
+                    document.getElementById('connectWalletConnect').style.display = 'none';
+
+                    // Enable the transaction button
+                    document.getElementById('sendTransaction').removeAttribute('disabled');
+                    alert('Connected to MetaMask!');
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to connect to MetaMask. Please make sure you have MetaMask installed and unlocked.');
+                }
+            } else {
+                alert('MetaMask is not installed.');
+            }
+        }
+
+        // Function to connect using WalletConnect
+        async function connectWalletConnect() {
             try {
-                const providerEngine = new Web3ProviderEngine();
-                const web3Modal = new Web3Modal({
-                    cacheProvider: true,
-                    providerOptions: {
-                        metamask: {
-                            package: window.ethereum, // Use MetaMask's injected provider
-                            options: {
-                                network: 'mainnet', // Specify the desired network (e.g., 'mainnet' or 'rinkeby')
-                            },
-                        },
-                        trustwallet: {
-                            package: {
-                                isTrust: true, // Trust Wallet's package
-                                rpcUrl: 'https://mainnet.infura.io/v3/116174764d354240a64cecda70ce8399', // Replace with your Infura project ID or other Ethereum RPC URL
-                            },
-                        },
-                        coinbase: {
-                            package: null, // Use Coinbase Wallet's injected provider
-                            options: {
-                                network: 'mainnet', // Specify the desired network (e.g., 'mainnet' or 'rinkeby')
-                            },
-                        },
-                        // Add more wallet provider options as needed
-                    },
+                // Initialize WalletConnect provider
+                const walletConnectProvider = new WalletConnectProvider({
+                    infuraId: 'https://mainnet.infura.io/v3/116174764d354240a64cecda70ce8399', // Replace with your Infura project ID
                 });
 
-                const provider = await web3Modal.connect();
+                // Enable WalletConnect
+                await walletConnectProvider.enable();
 
-                // Initialize web3 with the connected provider
-                web3 = new Web3(provider);
+                // Initialize web3 with the WalletConnect provider
+                web3 = new Web3(walletConnectProvider);
 
                 // Retrieve user's accounts
                 accounts = await web3.eth.getAccounts();
@@ -68,15 +78,16 @@
                 document.getElementById('address').textContent = userAddress;
                 document.getElementById('userAddress').style.display = 'block';
 
-                // Hide the "Connect Wallet" button
-                document.getElementById('connectWallet').style.display = 'none';
+                // Hide the "Connect WalletConnect" button
+                document.getElementById('connectWalletConnect').style.display = 'none';
+                document.getElementById('connectMetamask').style.display = 'none';
 
                 // Enable the transaction button
                 document.getElementById('sendTransaction').removeAttribute('disabled');
-                alert('Connected using Web3Modal!');
+                alert('Connected using WalletConnect!');
             } catch (error) {
                 console.error(error);
-                alert('Failed to connect using Web3Modal. Please make sure you have a compatible wallet.');
+                alert('Failed to connect using WalletConnect. Please make sure you have a compatible mobile wallet.');
             }
         }
 
@@ -113,7 +124,8 @@
        }
 
         // Add event listeners
-        document.getElementById('connectWallet').addEventListener('click', connectWallet);
+        document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
+        document.getElementById('connectWalletConnect').addEventListener('click', connectWalletConnect);
         document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
     </script>
 </body>
