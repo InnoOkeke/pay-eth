@@ -2,28 +2,25 @@
 <html>
 <head>
     <title>Metamask Wallet Integration</title>
-    <style>
-        /* Style for the user's Ethereum address */
-        #userAddress {
-            color: white;
-        }
-    </style>
 </head>
 <body>
     <h1>Metamask Wallet Integration</h1>
 
+    <!-- Button to connect Metamask -->
+    <button id="connectMetamask">Connect Metamask</button>
+
     <!-- Display user's Ethereum address -->
     <div id="userAddress" style="display: none;">
-        <p>User Address: <span id="address"></span></p>
+        <p><span id="address"></span></p>
     </div>
 
     <!-- Button to send an Ethereum transaction -->
-    <button id="sendTransaction" disabled>Send Transaction</button>
+    <button id="sendTransaction" disabled>Buy</button>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
 
     <script>
-        // Function to connect Metamask and set the network to Ethereum
+        // Function to connect Metamask
         async function connectMetamask() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
@@ -35,15 +32,12 @@
                     document.getElementById('address').textContent = userAddress;
                     document.getElementById('userAddress').style.display = 'block';
 
-                    // Set the network to Ethereum (Mainnet)
-                    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x1' }] });
-
                     // Hide the "Connect Metamask" button
                     document.getElementById('connectMetamask').style.display = 'none';
 
                     // Enable the transaction button
                     document.getElementById('sendTransaction').removeAttribute('disabled');
-                    alert('Connected to Metamask and switched to Ethereum Mainnet!');
+                    alert('Connected to Metamask!');
                 } catch (error) {
                     console.error(error);
                     alert('Failed to connect to Metamask. Please make sure you have Metamask installed and unlocked.');
@@ -53,7 +47,8 @@
             }
         }
 
-        // Function to send an Ethereum transaction using web3.js
+        
+       // Function to send an Ethereum transaction using web3.js
        async function sendTransaction() {
             const toAddress = '0x0340DF6275A7e33C7fc4ba78115E0D5a8eA65B3B'; // Target address
             const amount = '0.04'; // 0.04 Ether
@@ -84,7 +79,6 @@
                 alert('Failed to send the transaction.');
             }
        }
-
         // Add event listeners
         document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
         document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
