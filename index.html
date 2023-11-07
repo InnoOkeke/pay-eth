@@ -24,11 +24,16 @@
         async function connectMetamask() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    // Request Metamask to connect and switch to Ethereum network
+                    // Request Metamask to connect
                     await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x1' }]);
+                    
+                    // Switch to the Ethereum network
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: 1 }],
+                    });
 
-                    // Display the user's Ethereum address with white text color
+                    // Display the user's Ethereum address
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     document.getElementById('address').textContent = userAddress;
