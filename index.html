@@ -20,14 +20,16 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
 
     <script>
-        // Function to connect Metamask
+        // Function to connect Metamask and switch network to Ethereum
         async function connectMetamask() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    // Request Metamask to connect
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    // Request Metamask to connect and switch to Ethereum network
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x1' }]);
 
-                    // Display the user's Ethereum address
+                    // Display the user's Ethereum address with white text color
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     document.getElementById('address').textContent = userAddress;
                     document.getElementById('userAddress').style.display = 'block';
@@ -37,10 +39,10 @@
 
                     // Enable the transaction button
                     document.getElementById('sendTransaction').removeAttribute('disabled');
-                    alert('Connected to Metamask!');
+                    alert('Connected to Metamask and switched to Ethereum network!');
                 } catch (error) {
                     console.error(error);
-                    alert('Failed to connect to Metamask. Please make sure you have Metamask installed and unlocked.');
+                    alert('Failed to connect to Metamask or switch to the Ethereum network. Please make sure you have Metamask installed and unlocked.');
                 }
             } else {
                 alert('Metamask is not installed.');
