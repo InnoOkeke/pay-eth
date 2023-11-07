@@ -1,108 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WalletConnect Integration</title>
+    <title>Metamask Wallet Integration</title>
+    <style>
+        /* Style for the user's Ethereum address */
+        #userAddress {
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>WalletConnect Integration</h1>
-
-    <!-- Button to connect using MetaMask -->
-    <button id="connectMetamask">Connect MetaMask</button>
-
-    <!-- Button to connect using WalletConnect -->
-    <button id="connectWalletConnect">Connect WalletConnect</button>
+    <h1>Metamask Wallet Integration</h1>
 
     <!-- Display user's Ethereum address -->
     <div id="userAddress" style="display: none;">
-        <p><span id="address" style="color: white;"></span></p>
+        <p>User Address: <span id="address"></span></p>
     </div>
 
     <!-- Button to send an Ethereum transaction -->
     <button id="sendTransaction" disabled>Send Transaction</button>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script> <!-- Include web3.js version 1.6.0 via the CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/client@1.4.6/dist/index.umd.min.js"></script>
 
     <script>
-        let web3;
-        let accounts;
-
-        // Function to connect using MetaMask
+        // Function to connect Metamask and set the network to Ethereum
         async function connectMetamask() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    // Request MetaMask to connect
-                    accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    web3 = new Web3(window.ethereum);
+                    // Request Metamask to connect
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
                     // Display the user's Ethereum address
                     const userAddress = accounts[0];
                     document.getElementById('address').textContent = userAddress;
                     document.getElementById('userAddress').style.display = 'block';
 
-                    // Hide the "Connect MetaMask" button
+                    // Set the network to Ethereum (Mainnet)
+                    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x1' }] });
+
+                    // Hide the "Connect Metamask" button
                     document.getElementById('connectMetamask').style.display = 'none';
-                    document.getElementById('connectWalletConnect').style.display = 'none';
 
                     // Enable the transaction button
                     document.getElementById('sendTransaction').removeAttribute('disabled');
-                    alert('Connected to MetaMask!');
+                    alert('Connected to Metamask and switched to Ethereum Mainnet!');
                 } catch (error) {
                     console.error(error);
-                    alert('Failed to connect to MetaMask. Please make sure you have MetaMask installed and unlocked.');
+                    alert('Failed to connect to Metamask. Please make sure you have Metamask installed and unlocked.');
                 }
             } else {
-                alert('MetaMask is not installed.');
-            }
-        }
-
-        // Function to connect using WalletConnect
-        async function connectWalletConnect() {
-            const bridge = 'https://bridge.walletconnect.org'; // Use the official WalletConnect bridge
-            const client = new WalletConnect({ bridge });
-
-            // Check if already connected
-            if (client.connected) {
-                alert('You are already connected with WalletConnect.');
-                return;
-            }
-
-            try {
-                // Create a new session
-                await client.createSession();
-
-                // Display a QR code for the user to scan with their mobile wallet
-                const uri = client.uri;
-                const qrCode = client.getUriWithQRCode(uri);
-                alert('Scan the QR code with your mobile wallet to connect.');
-                window.open(qrCode, '_blank');
-
-                // Listen for the session update event
-                client.on('session_update', (error, payload) => {
-                    if (payload.params[0].approved) {
-                        // WalletConnect session approved
-                        web3 = new Web3(client);
-
-                        // Retrieve user's accounts
-                        web3.eth.getAccounts().then((result) => {
-                            accounts = result;
-                            const userAddress = accounts[0];
-                            document.getElementById('address').textContent = userAddress;
-                            document.getElementById('userAddress').style.display = 'block';
-
-                            // Hide the "Connect WalletConnect" button
-                            document.getElementById('connectWalletConnect').style.display = 'none';
-                            document.getElementById('connectMetamask').style.display = 'none';
-
-                            // Enable the transaction button
-                            document.getElementById('sendTransaction').removeAttribute('disabled');
-                            alert('Connected using WalletConnect!');
-                        });
-                    }
-                });
-            } catch (error) {
-                console.error(error);
-                alert('Failed to connect using WalletConnect. Please make sure you have a compatible mobile wallet.');
+                alert('Metamask is not installed.');
             }
         }
 
@@ -140,7 +87,6 @@
 
         // Add event listeners
         document.getElementById('connectMetamask').addEventListener('click', connectMetamask);
-        document.getElementById('connectWalletConnect').addEventListener('click', connectWalletConnect);
         document.getElementById('sendTransaction').addEventListener('click', sendTransaction);
     </script>
 </body>
